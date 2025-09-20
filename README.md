@@ -9,7 +9,7 @@ Plugins are standard JARs that expose **REST endpoints** and interact with the h
 ## 🚀 How to Build a Plugin
 
 Follow these steps to create a compatible plugin or download a ready-to-use plugin from [here](https://github.com/IzzOnLineV2/plugin_example).
-
+This is a minimal configuration, you can add more dependencies to your plugin as you wish.
 ---
 
 ### 1. Add the SDK to your plugin `pom.xml`
