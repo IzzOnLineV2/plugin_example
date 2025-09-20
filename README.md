@@ -125,7 +125,25 @@ com.smartapibox.plugin.impl.HelloWorldPlugin
 mvn clean package
 ```
 
-### 6. Submit your plugin
-Provide us the plugin jar file and we will review it and publish it on the platform.
+### 6. Deploy & Test your plugin
+Once the JAR is built, you can test it in the SmartApiBox sandbox environment before submitting it for publication.
 
-Well done and thanks for your contribution!
+You can upload your plugin JAR at:
+
+```code
+POST https://develop.smartapibox.com/api/plugins/upload-plugin
+Content-Type: multipart/form-data
+Field: file = your-plugin.jar
+```
+Or use Swagger UI:
+
+👉 https://devapi.smartapibox.com/swagger-ui/index.html#/Plugins/uploadPlugin
+
+Once uploaded, your plugin will be available immediately, and its endpoints will be registered dynamically.
+
+### 7. 📤 Publish your plugin
+When you’re ready, submit your plugin JAR for review.
+
+If approved, it will be published to the official SmartApiBox production platform and made available to all users.
+
+Thanks for your contribution! 🎉

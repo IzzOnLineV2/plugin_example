@@ -3,6 +3,11 @@ package com.smartapibox.plugin.impl;
 import com.smartapibox.plugin.PluginMetadata;
 import com.smartapibox.plugin.SmartApiPlugin;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 
 public class HelloWorldPlugin implements SmartApiPlugin {
 
@@ -13,11 +18,28 @@ public class HelloWorldPlugin implements SmartApiPlugin {
 
     @Override
     public void onLoad(Object context) {
-        HelloWorldController controller = new HelloWorldController();
+        if (context instanceof GenericApplicationContext gac) {
+            HelloWorldController controller = new HelloWorldController();
+            gac.registerBean(HelloWorldController.class, () -> controller);
 
-        ((GenericApplicationContext) context)
-                .registerBean(HelloWorldController.class, () -> controller);
+            try {
+                Map<String, RequestMappingHandlerMapping> mappings = gac.getBeansOfType(RequestMappingHandlerMapping.class);
+                RequestMappingHandlerMapping handlerMapping = mappings.get("requestMappingHandlerMapping");
 
-        System.out.println("HelloWorldPlugin loaded and controller registered!");
+                Method detectMethod = handlerMapping.getClass()
+                        .getSuperclass()
+                        .getSuperclass()
+                        .getDeclaredMethod("detectHandlerMethods", Object.class);
+                detectMethod.setAccessible(true);
+                detectMethod.invoke(handlerMapping, controller);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public List<Class<?>> getRestControllers() {
+        return List.of(HelloWorldController.class);
     }
 }
