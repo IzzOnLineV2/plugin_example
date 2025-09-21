@@ -75,6 +75,7 @@ curl --location 'https://devapi.smartapibox.com/api/plugins/download?pluginName=
 </dependencies>
 ```
 ### 2. Implement the SmartApiPlugin interface
+The exposed REST endpoints must be annotated with the `@RestController` and `@GetMapping` annotations and must start with `/api/external`.
 
 ```java
 package com.example.test;
