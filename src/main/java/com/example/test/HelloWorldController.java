@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
-    @GetMapping("/hello")
+    @GetMapping("/api/external/hello")
     @Operation(
             summary = "Say Hello",
             description = "Returns a greeting from the dynamically loaded plugin",
