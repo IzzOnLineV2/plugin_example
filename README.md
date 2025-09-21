@@ -2,15 +2,30 @@
 
 This guide explains how to build a **valid plugin JAR** for the [SmartApiBox](https://smartapibox.com) platform using the `plugin-api-sdk`.
 
-Plugins are standard JARs that expose **REST endpoints** and interact with the host via a lightweight SDK, without needing Spring Boot or GPT integration on the plugin side.
+Plugins are standard JARs that expose **REST endpoints** and interact with the host via a lightweight SDK, without requiring Spring Boot or GPT integration on the plugin side.
 
 ---
 
 ## 🚀 How to Build a Plugin
 
-Follow these steps to create a compatible plugin or download a ready-to-use plugin from [here](https://github.com/IzzOnLineV2/plugin_example).
-This is a minimal configuration, you can add more dependencies to your plugin as you wish.
-If you prefer, you can download the scaffolding of a plugin using the endpoint: https://devapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName you have to replace YourPluginName with the name of your plugin and put the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
+Follow these steps to create a compatible plugin, or download a ready-to-use plugin from [here](https://github.com/IzzOnLineV2/plugin_example).
+
+This is a minimal configuration — you can add more dependencies to your plugin as needed.
+
+If you prefer, you can download a plugin scaffold using the following endpoint.
+Replace `YourPluginName` with your desired plugin name, and include the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
+Make sure to generate your API key first.
+
+```bash
+# Generate an API key (free plan)
+curl --location --request POST 'https://devapi.smartapibox.com/api/keys/generate?email=youremail@example.com' \
+--data ''
+
+# Download plugin scaffold
+curl --location 'https://devapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
+--header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
+```
+
 ---
 
 ### 1. Add the SDK to your plugin `pom.xml`
