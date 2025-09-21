@@ -1,4 +1,4 @@
-package com.smartapibox.plugin.impl;
+package com.example.test;
 
 import com.smartapibox.plugin.PluginMetadata;
 import com.smartapibox.plugin.SmartApiPlugin;

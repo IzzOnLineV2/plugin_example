@@ -1,4 +1,4 @@
-package com.smartapibox.plugin.impl;
+package com.example.test;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

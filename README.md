@@ -63,6 +63,7 @@ This is a minimal configuration, you can add more dependencies to your plugin as
 ```java
 package com.smartapibox.plugin.impl;
 
+import com.example.test.HelloWorldController;
 import com.smartapibox.plugin.PluginMetadata;
 import com.smartapibox.plugin.SmartApiPlugin;
 import org.springframework.context.support.GenericApplicationContext;
@@ -117,7 +118,7 @@ public class HelloWorldController {
 ### 4. Create META-INF/services/com.smartapibox.plugin.SmartApiPlugin
 This file is required for dynamic discovery of your plugin:
 ```text
-com.smartapibox.plugin.impl.HelloWorldPlugin
+com.example.test.HelloWorldPlugin
 ```
 
 ### 5. Build the plugin
