@@ -89,7 +89,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
-    @GetMapping("/api/plugin/hello")
+    @GetMapping("/hello")
     @Operation(
             summary = "Say Hello",
             description = "Returns a greeting from the dynamically loaded plugin",
@@ -174,13 +174,16 @@ POST https://develop.smartapibox.com/api/plugins/upload-plugin
 Content-Type: multipart/form-data
 Field: file = your-plugin.jar
 ```
-Or use Swagger UI:
-
-👉 https://devapi.smartapibox.com/swagger-ui/index.html#/Plugins/uploadPlugin
 
 Once uploaded, your plugin will be available immediately, and its endpoints will be registered dynamically.
 For security reasons, you can only upload plugins from the SmartApiBox sandbox environment.
 Your plugin could be automatically disabled. Simply re-upload it to enable it.
+
+You can test your plugin by sending a request to the `/api/external/hello` endpoint like this:
+```bash
+curl --location 'https://devapi.smartapibox.com/api/external/hello' \
+--header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
+```
 
 ### 7. 📤 Publish your plugin
 When you’re ready, submit us your plugin JAR for review at https://www.smartapibox.com/plugins/submit. (NOT AVAILABLE YET)
