@@ -10,18 +10,19 @@ Plugins are standard JARs that expose **REST endpoints** and interact with the h
 
 Follow these steps to create a compatible plugin or download a ready-to-use plugin from [here](https://github.com/IzzOnLineV2/plugin_example).
 This is a minimal configuration, you can add more dependencies to your plugin as you wish.
+If you prefer, you can download the scaffolding of a plugin using the endpoint: https://devapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName you have to replace YourPluginName with the name of your plugin and put the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
 ---
 
 ### 1. Add the SDK to your plugin `pom.xml`
 
 ```xml
  <dependencies>
+    
     <!-- Main project SDK -->
     <dependency>
         <groupId>com.smartapibox</groupId>
         <artifactId>plugin-api-sdk</artifactId>
-        <version>0.0.1-SNAPSHOT</version> <!-- Please choose the correct version -->
-        <scope>provided</scope>
+        <version>0.0.1</version>
     </dependency>
 
     <!-- Spring Core (for ApplicationContext) -->
@@ -61,35 +62,7 @@ This is a minimal configuration, you can add more dependencies to your plugin as
 ### 2. Implement the SmartApiPlugin interface
 
 ```java
-package com.smartapibox.plugin.impl;
-
-import com.example.test.HelloWorldController;
-import com.smartapibox.plugin.PluginMetadata;
-import com.smartapibox.plugin.SmartApiPlugin;
-import org.springframework.context.support.GenericApplicationContext;
-
-public class HelloWorldPlugin implements SmartApiPlugin {
-
-    @Override
-    public PluginMetadata getMetadata() {
-        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania");
-    }
-
-    @Override
-    public void onLoad(Object context) {
-        HelloWorldController controller = new HelloWorldController();
-
-        ((GenericApplicationContext) context)
-                .registerBean(HelloWorldController.class, () -> controller);
-
-        System.out.println("HelloWorldPlugin loaded and controller registered!");
-    }
-}
-
-```
-### 3. Implement the SmartApiPlugin interface
-```java
-package com.smartapibox.plugin.impl;
+package com.example.test;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -114,6 +87,55 @@ public class HelloWorldController {
         return "Hello from dynamically loaded plugin!";
     }
 }
+
+```
+### 3. Implement the SmartApiPlugin interface
+```java
+package com.example.test;
+
+import com.smartapibox.plugin.PluginMetadata;
+import com.smartapibox.plugin.SmartApiPlugin;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+
+public class HelloWorldPlugin implements SmartApiPlugin {
+
+    @Override
+    public PluginMetadata getMetadata() {
+        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania");
+    }
+
+    @Override
+    public void onLoad(Object context) {
+        if (context instanceof GenericApplicationContext gac) {
+            HelloWorldController controller = new HelloWorldController();
+            gac.registerBean(HelloWorldController.class, () -> controller);
+
+            try {
+                Map<String, RequestMappingHandlerMapping> mappings = gac.getBeansOfType(RequestMappingHandlerMapping.class);
+                RequestMappingHandlerMapping handlerMapping = mappings.get("requestMappingHandlerMapping");
+
+                Method detectMethod = handlerMapping.getClass()
+                        .getSuperclass()
+                        .getSuperclass()
+                        .getDeclaredMethod("detectHandlerMethods", Object.class);
+                detectMethod.setAccessible(true);
+                detectMethod.invoke(handlerMapping, controller);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public List<Class<?>> getRestControllers() {
+        return List.of(HelloWorldController.class);
+    }
+}
 ```
 ### 4. Create META-INF/services/com.smartapibox.plugin.SmartApiPlugin
 This file is required for dynamic discovery of your plugin:
@@ -132,6 +154,7 @@ Once the JAR is built, you can test it in the SmartApiBox sandbox environment be
 You can upload your plugin JAR at:
 
 ```code
+Header: x-api-key: YOUR-SMARTAPIBOX-API-KEY
 POST https://develop.smartapibox.com/api/plugins/upload-plugin
 Content-Type: multipart/form-data
 Field: file = your-plugin.jar
@@ -141,9 +164,11 @@ Or use Swagger UI:
 👉 https://devapi.smartapibox.com/swagger-ui/index.html#/Plugins/uploadPlugin
 
 Once uploaded, your plugin will be available immediately, and its endpoints will be registered dynamically.
+For security reasons, you can only upload plugins from the SmartApiBox sandbox environment.
+Your plugin could be automatically disabled. Simply re-upload it to enable it.
 
 ### 7. 📤 Publish your plugin
-When you’re ready, submit your plugin JAR for review.
+When you’re ready, submit us your plugin JAR for review at https://www.smartapibox.com/plugins/submit. (NOT AVAILABLE YET)
 
 If approved, it will be published to the official SmartApiBox production platform and made available to all users.
 
