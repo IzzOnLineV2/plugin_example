@@ -12,19 +12,20 @@ Follow these steps to create a compatible plugin, or download a ready-to-use plu
 
 This is a minimal configuration — you can add more dependencies to your plugin as needed.
 
-If you prefer, you can download a plugin scaffold using the following endpoint.
-Replace `YourPluginName` with your desired plugin name, and include the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
-Make sure to generate your API key first.
+If you prefer, you can **download a plugin scaffold** using the following endpoint:
 
 ```bash
 # Generate an API key (free plan)
-curl --location --request POST 'https://devapi.smartapibox.com/api/keys/generate?email=youremail@example.com' \
+curl --location --request POST 'https://sandbox.smartapibox.com/api/keys/generate?email=youremail@example.com' \
 --data ''
 
 # Download plugin scaffold
-curl --location 'https://devapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
+curl --location 'https://sandbox.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
+Replace `YourPluginName` with your desired plugin name, and include the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
+Make sure to generate your API key first.
+
 
 ---
 
@@ -165,7 +166,7 @@ mvn clean package
 ```
 
 ### 6. Deploy & Test your plugin
-Once the JAR is built, you can test it in the SmartApiBox sandbox environment before submitting it for publication.
+Once the JAR is built, you can test it in the SmartApiBox **sandbox** environment in the [Sandbox Site](https://sandbox.smartapibox.com) before submitting it for publication.
 
 You can upload your plugin JAR at:
 
@@ -178,17 +179,17 @@ Field: file = your-plugin.jar
 
 Once uploaded, your plugin will be available immediately, and its endpoints will be registered dynamically.
 For security reasons, you can only upload plugins from the SmartApiBox sandbox environment.
-Your plugin could be automatically disabled. Simply re-upload it to enable it.
+**Your plugin could be automatically disabled randomly. Simply re-upload it to enable it again.**
 
 You can test your plugin by sending a request to the `/api/external/hello` endpoint like this:
 ```bash
-curl --location 'https://devapi.smartapibox.com/api/external/hello' \
+curl --location 'https://sandbox.smartapibox.com/api/external/hello' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 
 ### 7. 📤 Publish your plugin
-When you’re ready, submit us your plugin JAR for review at https://www.smartapibox.com/plugins/submit. (NOT AVAILABLE YET)
+When you’re ready for the **production** environment, submit us your plugin JAR for review at https://www.smartapibox.com/plugins/submit. (NOT AVAILABLE YET)
 
-If approved, it will be published to the official SmartApiBox production platform and made available to all users.
+If approved, it will be published to the official SmartApiBox production platform and made available to all users and **you can start earning money**!
 
 Thanks for your contribution! 🎉
