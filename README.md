@@ -12,13 +12,22 @@ Follow these steps to create a compatible plugin, or download a ready-to-use plu
 
 This is a minimal configuration — you can add more dependencies to your plugin as needed.
 
-If you prefer, you can **download a plugin scaffold** using the following endpoint:
+If you prefer, you can **download a plugin scaffold** using the following API calls:  
+<br>
 
+🧾 Step 1 — Get your API key (free plan)
 ```bash
 # Generate an API key (free plan)
 curl --location --request POST 'https://sandbox.smartapibox.com/api/keys/generate?email=youremail@example.com' \
 --data ''
+```
+If your email is already verified, you will receive your API key directly in the response.  
+If it’s your first time, you’ll receive an email with a verification link.  
+Once verified, your API key will be sent to your email.
+<br>
 
+📦 Step 2 — Download the plugin scaffold
+```bash
 # Download plugin scaffold
 curl --location 'https://sandbox.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
