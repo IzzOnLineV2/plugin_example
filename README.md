@@ -17,8 +17,7 @@ If you prefer, you can **download a plugin scaffold** using the following API ca
 
 🧾 Step 1 — Get your API key (free plan)
 ```bash
-curl --location --request POST 'https://sandbox.smartapibox.com/api/keys/generate?email=youremail@example.com' \
---data ''
+curl -i --location --request GET 'https://sandboxapi.smartapibox.com/api/keys/generate?email=youremail@example.com'
 ```
 If your email is already verified, you will receive your API key directly in the response.  
 If it’s your first time, you’ll receive an email with a verification link.  
@@ -27,7 +26,7 @@ Once verified, your API key will be sent to your email.
 
 📦 Step 2 — Download the plugin scaffold
 ```bash
-curl --location 'https://sandbox.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
+curl --location 'https://sandboxapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 Replace `YourPluginName` with your desired plugin name, and include the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
@@ -190,7 +189,7 @@ For security reasons, you can only upload plugins from the SmartApiBox sandbox e
 
 You can test your plugin by sending a request to the `/api/external/hello` endpoint like this:
 ```bash
-curl --location 'https://sandbox.smartapibox.com/api/external/hello' \
+curl --location 'https://sandboxapi.smartapibox.com/api/external/hello' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 
