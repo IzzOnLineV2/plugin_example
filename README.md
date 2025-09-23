@@ -177,11 +177,10 @@ Once the JAR is built, you can test it in the SmartApiBox **sandbox** environmen
 
 You can upload your plugin JAR at:
 
-```code
-Header: x-api-key: YOUR-SMARTAPIBOX-API-KEY
-POST https://develop.smartapibox.com/api/plugins/upload-plugin
-Content-Type: multipart/form-data
-Field: file = your-plugin.jar
+```bash
+curl --location --request POST 'https://develop.smartapibox.com/api/plugins/upload-plugin' \
+--header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
+--form 'file=@/absolute/path/YourPlugin.jar'
 ```
 
 Once uploaded, your plugin will be available immediately, and its endpoints will be registered dynamically.
