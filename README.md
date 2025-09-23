@@ -17,7 +17,7 @@ If you prefer, you can **download a plugin scaffold** using the following API ca
 
 🧾 Step 1 — Get your API key (free plan)
 ```bash
-curl -i --location --request GET 'https://sandboxapi.smartapibox.com/api/keys/generate?email=youremail@example.com'
+curl -i --location --request POST 'https://sandboxapi.smartapibox.com/api/keys/generate?email=youremail@example.com'
 ```
 If your email is already verified, you will receive your API key directly in the response.  
 If it’s your first time, you’ll receive an email with a verification link.  
