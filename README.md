@@ -28,7 +28,7 @@ Once verified, your API key will be sent to your email.
 ```bash
 curl --location 'https://sandboxapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
---output YourPluginName.zip
+--output YourPluginNameFile.zip
 ```
 Replace `YourPluginName` with your desired plugin name, and include the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
 Make sure to generate your API key first.
