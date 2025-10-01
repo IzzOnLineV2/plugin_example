@@ -165,7 +165,7 @@ mvn clean package
 
 ### 6. Deploy & Test your plugin
 Once the JAR is built, you can test it in the SmartApiBox **sandbox** environment in the [Sandbox Site](https://sandbox.smartapibox.com) before submitting it for publication.
-On sandbox only, there's a dedicated /api/developer/upload-plugin endpoint that allows plugin upload without authentication (no JWT required - only x-api-key header).
+On sandbox only, there's a dedicated /api/public/upload-plugin endpoint that allows plugin upload without authentication (no JWT required - only x-api-key header).
 
 🧾 Step 1 — Get your API key (free plan)
 ```bash
@@ -179,7 +179,7 @@ Once verified, your API key will be sent to your email.
 🧾 Step 2 — You can upload your plugin JAR at:
 
 ```bash
-curl --location --request POST 'https://sandboxapi.smartapibox.com/api/developer/upload-plugin' \
+curl --location --request POST 'https://sandboxapi.smartapibox.com/api/public/upload-plugin' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
 --form 'file=@/absolute/path/YourPlugin.jar'
 ```
