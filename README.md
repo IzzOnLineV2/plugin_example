@@ -203,8 +203,15 @@ curl --location 'https://sandboxapi.smartapibox.com/api/plugin/external/hello' \
 ```
 
 ### 7. 📤 Publish your plugin
-When you’re ready for the **production** environment, submit us your plugin JAR for review at https://www.smartapibox.com/plugins/submit. (NOT AVAILABLE YET)
 
-If approved, it will be published to the official SmartApiBox production platform and made available to all users and **you can start earning money**!
+When you're ready to make your plugin available on the **SmartApiBox production environment**, follow these steps:
 
-Thanks for your contribution! 🎉
+1. **Make sure your plugin is validated** using the sandbox upload endpoint `/api/private/catalogue/endpoint` with `PENDING_APPROVAL` status (this is the default in production).
+
+2. A SmartApiBox team member will manually review your submission and, if approved, your plugin will be published on the **official API catalogue**.
+
+3. Once approved, the plugin will be dynamically available to all SmartApiBox users, and you'll be eligible to earn usage-based revenue.
+
+📨 Plugin monetization, documentation, and review features will soon be available in your personal developer dashboard on [smartapibox.com](https://smartapibox.com).
+
+Thanks for contributing to the SmartApiBox ecosystem! 🎉
