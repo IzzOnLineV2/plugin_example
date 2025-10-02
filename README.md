@@ -34,7 +34,7 @@ Replace `YourPluginName` with your desired plugin name
     <dependency>
         <groupId>com.smartapibox</groupId>
         <artifactId>plugin-api-sdk</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
 
     <!-- Spring Core (for ApplicationContext) -->
@@ -109,10 +109,13 @@ public class HelloWorldController {
 package com.example.test;
 
 import com.smartapibox.plugin.PluginMetadata;
+import com.smartapibox.plugin.PluginRegistrar;
 import com.smartapibox.plugin.SmartApiPlugin;
-import org.springframework.context.support.GenericApplicationContext;
+
+import java.util.List;
 
 public class HelloWorldPlugin implements SmartApiPlugin {
+
 
     @Override
     public PluginMetadata getMetadata() {
@@ -120,12 +123,10 @@ public class HelloWorldPlugin implements SmartApiPlugin {
     }
 
     @Override
-    public void onLoad(Object context) {
-        if (context instanceof GenericApplicationContext gac) {
-            // Registra il controller nel context (Spring si occupa di instanziarlo e mappare l'endpoint)
-            gac.registerBean(HelloWorldController.class);
-        }
+    public void onLoad(PluginRegistrar registrar) {
+        registrar.registerController(new HelloWorldController());
     }
+
 
     @Override
     public List<Class<?>> getRestControllers() {
