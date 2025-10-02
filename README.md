@@ -45,7 +45,7 @@ Make sure to generate your API key first.
     <dependency>
         <groupId>com.smartapibox</groupId>
         <artifactId>plugin-api-sdk</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </dependency>
 
     <!-- Spring Core (for ApplicationContext) -->
