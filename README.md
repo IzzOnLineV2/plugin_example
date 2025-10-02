@@ -163,32 +163,40 @@ com.example.test.HelloWorldPlugin
 mvn clean package
 ```
 
-### 6. Deploy & Test your plugin
-Once the JAR is built, you can test it in the SmartApiBox **sandbox** environment in the [Sandbox Site](https://sandbox.smartapibox.com) before submitting it for publication.
-On sandbox only, there's a dedicated /api/public/upload-plugin endpoint that allows plugin upload without authentication (no JWT required - only x-api-key header).
+### 6. Register & Deploy your plugin via API
 
-🧾 Step 1 — Get your API key (free plan)
-```bash
-curl -i --location --request POST 'https://sandboxapi.smartapibox.com/api/public/keys/generate?email=youremail@example.com'
-```
-If your email is already verified, you will receive your API key directly in the response.  
-If it’s your first time, you’ll receive an email with a verification link. Didn’t get the email? Make sure to check your spam or promotions folder.
-Once verified, your API key will be sent to your email.
-<br>
+To test your plugin in the **sandbox** environment, you must upload it together with the endpoint metadata via the SmartApiBox `/api/private/catalogue/endpoint` API.
 
-🧾 Step 2 — You can upload your plugin JAR at:
+This endpoint expects a `multipart/form-data` request with two parts:
+
+- `data` — the JSON payload representing your API endpoint (see `ApiEndpointRequest`)
+- `pluginJar` — your plugin JAR file
+
+🧾 Example using `curl`:
 
 ```bash
-curl --location --request POST 'https://sandboxapi.smartapibox.com/api/public/upload-plugin' \
---header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
---form 'file=@/absolute/path/YourPlugin.jar'
+curl --location --request POST 'https://sandboxapi.smartapibox.com/api/private/catalogue/endpoint' \
+--header 'Authorization: Bearer YOUR_JWT_TOKEN' \
+--form 'data={
+  "name": "Hello Plugin",
+  "path": "/api/plugin/external/hello",
+  "method": "GET",
+  "description": "Say hello from the plugin",
+  "consumes": "application/json",
+  "requiresAuth": false,
+  "example": "curl --location https://sandboxapi.smartapibox.com/api/plugin/external/hello"
+};type=application/json' \
+--form 'pluginJar=@/absolute/path/HelloWorldPlugin.jar'
 ```
 
-Once uploaded, your plugin will be available immediately, and its endpoints will be registered dynamically.
-For security reasons, you can only upload plugins from the SmartApiBox sandbox environment.
-**Your plugin could be automatically disabled randomly. Simply re-upload it to enable it again.**
+✅ If the metadata matches the plugin, it will be:
+- automatically set to **APPROVED** if you're in the `sandbox` or `develop` environment
+- set to **PENDING_APPROVAL** in `production`, and reviewed manually
 
-You can test your plugin by sending a request to the `/api/plugin/external/hello` endpoint like this:
+Once validated, the plugin is copied into the internal `plugins/` directory and dynamically loaded.
+
+🧪 You can then test your plugin with:
+
 ```bash
 curl --location 'https://sandboxapi.smartapibox.com/api/plugin/external/hello' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
