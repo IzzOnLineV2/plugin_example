@@ -13,7 +13,7 @@ public class HelloWorldPlugin implements SmartApiPlugin {
 
     @Override
     public PluginMetadata getMetadata() {
-        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania","/api/plugin/external", PluginMetadata.HttpMethod.GET);
+        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania","/api/plugin/external/hello", PluginMetadata.HttpMethod.GET);
     }
 
     @Override
