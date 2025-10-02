@@ -12,26 +12,15 @@ Follow these steps to create a compatible plugin, or download a ready-to-use plu
 
 This is a minimal configuration — you can add more dependencies to your plugin as needed.
 
-If you prefer, you can **download a plugin scaffold** using the following API calls:  
+If you prefer, you can **download a plugin scaffold** using the following API call:  
 <br>
 
-🧾 Step 1 — Get your API key (free plan)
+📦 Download the plugin scaffold
 ```bash
-curl -i --location --request POST 'https://sandboxapi.smartapibox.com/api/keys/generate?email=youremail@example.com'
-```
-If your email is already verified, you will receive your API key directly in the response.  
-If it’s your first time, you’ll receive an email with a verification link. Didn’t get the email? Make sure to check your spam or promotions folder.
-Once verified, your API key will be sent to your email.
-<br>
-
-📦 Step 2 — Download the plugin scaffold
-```bash
-curl --location 'https://sandboxapi.smartapibox.com/api/plugins/download?pluginName=YourPluginName' \
---header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
+curl --location 'https://sandboxapi.smartapibox.com/api/public/plugin/download?pluginName=YourPluginName' \
 --output YourPluginNameFile.zip
 ```
-Replace `YourPluginName` with your desired plugin name, and include the header `x-api-key: YOUR-SMARTAPIBOX-API-KEY` in the request.
-Make sure to generate your API key first.
+Replace `YourPluginName` with your desired plugin name
 
 
 ---
@@ -82,8 +71,8 @@ Make sure to generate your API key first.
 
 </dependencies>
 ```
-### 2. Implement the SmartApiPlugin interface
-The exposed REST endpoints must be annotated with the `@RestController` and `@GetMapping` annotations and must start with `/api/external`.
+### 2. Create your REST controller
+The exposed REST endpoints must be annotated with the `@RestController` and `@RequestMapping` must start with `/api/plugin/external`.
 
 ```java
 package com.example.test;
@@ -92,13 +81,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/plugin/external")
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
-    @GetMapping("/api/external/hello")
+    @GetMapping("/hello")
     @Operation(
             summary = "Say Hello",
             description = "Returns a greeting from the dynamically loaded plugin",
@@ -113,7 +104,7 @@ public class HelloWorldController {
 }
 
 ```
-### 3. Implement the SmartApiPlugin interface
+### 3. Implement the `SmartApiPlugin` class
 ```java
 package com.example.test;
 
@@ -174,11 +165,21 @@ mvn clean package
 
 ### 6. Deploy & Test your plugin
 Once the JAR is built, you can test it in the SmartApiBox **sandbox** environment in the [Sandbox Site](https://sandbox.smartapibox.com) before submitting it for publication.
+On sandbox only, there's a dedicated /api/public/upload-plugin endpoint that allows plugin upload without authentication (no JWT required - only x-api-key header).
 
-You can upload your plugin JAR at:
+🧾 Step 1 — Get your API key (free plan)
+```bash
+curl -i --location --request POST 'https://sandboxapi.smartapibox.com/api/public/keys/generate?email=youremail@example.com'
+```
+If your email is already verified, you will receive your API key directly in the response.  
+If it’s your first time, you’ll receive an email with a verification link. Didn’t get the email? Make sure to check your spam or promotions folder.
+Once verified, your API key will be sent to your email.
+<br>
+
+🧾 Step 2 — You can upload your plugin JAR at:
 
 ```bash
-curl --location --request POST 'https://sandboxapi.smartapibox.com/api/plugins/upload-plugin' \
+curl --location --request POST 'https://sandboxapi.smartapibox.com/api/public/upload-plugin' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
 --form 'file=@/absolute/path/YourPlugin.jar'
 ```
@@ -187,9 +188,9 @@ Once uploaded, your plugin will be available immediately, and its endpoints will
 For security reasons, you can only upload plugins from the SmartApiBox sandbox environment.
 **Your plugin could be automatically disabled randomly. Simply re-upload it to enable it again.**
 
-You can test your plugin by sending a request to the `/api/external/hello` endpoint like this:
+You can test your plugin by sending a request to the `/api/plugin/external/hello` endpoint like this:
 ```bash
-curl --location 'https://sandboxapi.smartapibox.com/api/external/hello' \
+curl --location 'https://sandboxapi.smartapibox.com/api/plugin/external/hello' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 
