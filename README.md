@@ -157,18 +157,11 @@ This endpoint expects a `multipart/form-data` request with two parts:
 🧾 Example using `curl`:
 
 ```bash
-curl --location --request POST 'https://sandboxapi.smartapibox.com/api/private/catalogue/endpoint' \
---header 'Authorization: Bearer YOUR_JWT_TOKEN' \
---form 'data={
-  "name": "Hello Plugin",
-  "path": "/api/plugin/external/hello",
-  "method": "GET",
-  "description": "Say hello from the plugin",
-  "consumes": "application/json",
-  "requiresAuth": false,
-  "example": "curl --location https://sandboxapi.smartapibox.com/api/plugin/external/hello"
-};type=application/json' \
---form 'pluginJar=@/absolute/path/HelloWorldPlugin.jar'
+curl --location 'https://sandboxapi.smartapibox.com/api/private/catalogue/endpoint' \
+--header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
+--header 'Authorization: Bearer YOUR-SMARTAPIBOX-JWT-TOKEN' \
+--form 'pluginJar=@"../HelloWorld-plugin/target/hello-world-plugin-1.0.0.jar"' \
+--form 'data="{\"method\":\"GET\",\"path\":\"/api/plugin/external/hello\",\"headers\":[{\"name\":\"x-api-key\",\"value\":\"REQUIRED\",\"description\":null}],\"example\":\"example string\",\"name\":\"name string\",\"requiresAuth\":false,\"consumes\":\"application/json\",\"tags\":[\"NO GPT REQUIRED\"],\"categoryIds\":[6],\"description\":\"descrizione\"}";type=application/json'
 ```
 
 ✅ If the metadata matches the plugin, it will be:
