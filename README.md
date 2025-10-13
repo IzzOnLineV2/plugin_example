@@ -72,7 +72,7 @@ Replace `YourPluginName` with your desired plugin name
 </dependencies>
 ```
 ### 2. Create your REST controller
-The exposed REST endpoints must be annotated with the `@RestController` and `@RequestMapping` must start with `/api/plugin/external`.
+The exposed REST endpoints must be annotated with the `@RestController` and `@RequestMapping` must start with `/api/v1/plugin/external`.
 
 ```java
 package com.example.test;
@@ -85,7 +85,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/plugin/external")
+@RequestMapping("/api/v1/plugin/external")
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
@@ -119,7 +119,7 @@ public class HelloWorldPlugin implements SmartApiPlugin {
 
     @Override
     public PluginMetadata getMetadata() {
-        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania", "/api/plugin/external/hello", PluginMetadata.HttpMethod.GET);
+        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania", "/api/v1/plugin/external/hello", PluginMetadata.HttpMethod.GET);
     }
 
     @Override
@@ -161,7 +161,7 @@ curl --location 'https://sandboxapi.smartapibox.com/api/private/catalogue/endpoi
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
 --header 'Authorization: Bearer YOUR-SMARTAPIBOX-JWT-TOKEN' \
 --form 'pluginJar=@"../HelloWorld-plugin/target/hello-world-plugin-1.0.0.jar"' \
---form 'data="{\"method\":\"GET\",\"path\":\"/api/plugin/external/hello\",\"headers\":[{\"name\":\"x-api-key\",\"value\":\"REQUIRED\",\"description\":null}],\"example\":\"example string\",\"name\":\"name string\",\"requiresAuth\":false,\"consumes\":\"application/json\",\"tags\":[\"NO GPT REQUIRED\"],\"categoryIds\":[6],\"description\":\"descrizione\"}";type=application/json'
+--form 'data="{\"method\":\"GET\",\"path\":\"/api/v1/plugin/external/hello\",\"headers\":[{\"name\":\"x-api-key\",\"value\":\"REQUIRED\",\"description\":null}],\"example\":\"example string\",\"name\":\"name string\",\"requiresAuth\":false,\"consumes\":\"application/json\",\"tags\":[\"NO GPT REQUIRED\"],\"categoryIds\":[6],\"description\":\"descrizione\"}";type=application/json'
 ```
 
 ✅ If the metadata matches the plugin, it will be:
@@ -173,7 +173,7 @@ Once validated, the plugin is copied into the internal `plugins/` directory and 
 🧪 You can then test your plugin with:
 
 ```bash
-curl --location 'https://sandboxapi.smartapibox.com/api/plugin/external/hello' \
+curl --location 'https://sandboxapi.smartapibox.com/api/v1/plugin/external/hello' \
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 

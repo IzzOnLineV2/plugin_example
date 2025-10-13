@@ -11,11 +11,11 @@ public class HelloWorldPlugin implements SmartApiPlugin {
 
     @Override
     public PluginMetadata getMetadata() {
-        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania", "/api/plugin/external/hello", PluginMetadata.HttpMethod.GET);
+        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania", "/api/v1/plugin/external/hello", PluginMetadata.HttpMethod.GET);
     }
 
     @Override
-    public void onLoad(PluginRegistrar registrar) {
+    public void onLoad(final PluginRegistrar registrar) {
         registrar.registerController(new HelloWorldController());
     }
 
