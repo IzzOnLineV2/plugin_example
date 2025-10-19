@@ -105,9 +105,11 @@ public class HelloWorldController {
 
 ```
 ### 3. Implement the `SmartApiPlugin` class
+
 ```java
 package com.example.test;
 
+import com.example.test.controller.HelloWorldController;
 import com.smartapibox.plugin.PluginMetadata;
 import com.smartapibox.plugin.PluginRegistrar;
 import com.smartapibox.plugin.SmartApiPlugin;

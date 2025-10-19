@@ -1,4 +1,4 @@
-package com.example.test;
+package com.example.test.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
