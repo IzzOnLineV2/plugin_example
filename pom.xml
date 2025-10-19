@@ -71,6 +71,11 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-web</artifactId>
                 </dependency>
+                <dependency>
+                    <groupId>com.smartapibox</groupId>
+                    <artifactId>plugin-api-sdk</artifactId>
+                    <version>0.0.4</version>
+                </dependency>
             </dependencies>
         </profile>
     </profiles>

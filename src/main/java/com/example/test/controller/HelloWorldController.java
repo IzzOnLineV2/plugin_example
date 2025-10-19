@@ -1,5 +1,6 @@
 package com.example.test.controller;
 
+import com.example.test.service.HelloWorldService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
+    private final HelloWorldService helloWorldService;
+
+    public HelloWorldController(final HelloWorldService helloWorldService) {
+        this.helloWorldService = helloWorldService;
+    }
+
     @GetMapping("/hello")
     @Operation(
             summary = "Say Hello",
@@ -22,6 +29,6 @@ public class HelloWorldController {
             }
     )
     public String sayHello() {
-        return "Hello from dynamically loaded plugin!";
+        return helloWorldService.sayHello();
     }
 }

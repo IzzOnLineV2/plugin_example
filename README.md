@@ -2,80 +2,128 @@
 
 This guide explains how to build a **valid plugin JAR** for the [SmartApiBox](https://smartapibox.com) platform using the `plugin-api-sdk`.
 
-Plugins are standard JARs that expose **REST endpoints** and interact with the host via a lightweight SDK, without requiring Spring Boot or GPT integration on the plugin side.
+Plugins are standard JARs that expose **REST endpoints** and interact with the host via a lightweight SDK. Plugins **do not require** Spring Boot at compile time; the host provides the runtime Spring context. Plugins should be built so they can be dynamically loaded by SmartApiBox.
 
 ---
 
-## 🚀 How to Build a Plugin
+## 🚀 Quick summary of the runtime contract
 
-Follow these steps to create a compatible plugin, or download a ready-to-use plugin from [here](https://github.com/IzzOnLineV2/plugin_example).
+- SmartApiBox **dynamically loads plugin JARs** and registers beans/controllers into the host `GenericApplicationContext`.
+- The host **exposes plugin endpoints under the global prefix**:  
+  ```
+  /api/v1/plugin/external
+  ```
+  regardless of what the plugin author declares.  
+  Example: a controller annotated with `@RequestMapping("/myplugin/v2")` will be exposed by the host as:
+  ```
+  /api/v1/plugin/external/myplugin/v2
+  ```
+- Plugin authors are free to choose any base path in their controllers. The host will mount the controller methods under the global prefix at registration time.
 
-This is a minimal configuration — you can add more dependencies to your plugin as needed.
+---
 
-If you prefer, you can **download a plugin scaffold** using the following API call:  
-<br>
+## ✅ How to build a plugin — minimal steps
 
-📦 Download the plugin scaffold
+You can also download a plugin scaffold:
+
 ```bash
 curl --location 'https://sandboxapi.smartapibox.com/api/public/plugin/download?pluginName=YourPluginName' \
---output YourPluginNameFile.zip
+  --output YourPluginNameFile.zip
 ```
-Replace `YourPluginName` with your desired plugin name
 
+Unzip and import the Maven project in your IDE.
 
 ---
 
-### 1. Add the SDK to your plugin `pom.xml`
+### 1) Recommended `pom.xml` basics
+
+- Keep `plugin-api-sdk` as a normal dependency (compile-scope) so developers can build locally.
+- Keep Spring libraries (`spring-web`, `spring-context`) as `provided` — they are supplied by the host at runtime.
+- Provide an optional `local-test` Maven profile that imports the Spring Boot BOM so local builds/tests can run without the host.
+
+Minimal example:
 
 ```xml
- <dependencies>
-    
-    <!-- Main project SDK -->
+<project ...>
+  <modelVersion>4.0.0</modelVersion>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!-- SDK required for compilation -->
     <dependency>
-        <groupId>com.smartapibox</groupId>
-        <artifactId>plugin-api-sdk</artifactId>
-        <version>0.0.4</version>
+      <groupId>com.smartapibox</groupId>
+      <artifactId>plugin-api-sdk</artifactId>
+      <version>0.0.4</version>
     </dependency>
 
-    <!-- Spring Core (for ApplicationContext) -->
+    <!-- Provided by host (do not bundle these in the plugin jar) -->
     <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>6.1.5</version>
-        <scope>provided</scope>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>6.1.5</version>
+      <scope>provided</scope>
     </dependency>
 
-    <!-- Spring Web (for @RestController, @GetMapping) -->
     <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>6.1.5</version>
-        <scope>provided</scope>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>6.1.5</version>
+      <scope>provided</scope>
     </dependency>
 
-    <!-- Swagger Annotations -->
+    <!-- Annotations (provided) -->
     <dependency>
-        <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>2.2.20</version>
-        <scope>provided</scope>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.20</version>
+      <scope>provided</scope>
     </dependency>
+  </dependencies>
 
-    <!-- SpringDoc OpenAPI (only annotations, not runtime) -->
-    <dependency>
-        <groupId>org.springdoc</groupId>
-        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        <version>2.5.0</version>
-        <scope>provided</scope>
-    </dependency>
+  <!-- Optional: import Spring Boot BOM for local-test profile -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>3.2.5</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-</dependencies>
+  <profiles>
+    <profile>
+      <id>local-test</id>
+      <dependencies>
+        <!-- With the BOM you can omit explicit version -->
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+</project>
 ```
-### 2. Create your REST controller
-The exposed REST endpoints must be annotated with the `@RestController` and `@RequestMapping` must start with `/api/v1/plugin/external`.
+
+Use `mvn clean install -Plocal-test` to compile & test locally without the host.
+
+---
+
+### 2) Create your REST controller
+
+You may annotate your controller with any paths; the host will mount them under `/api/v1/plugin/external`.
+
+Example:
 
 ```java
-package com.example.test;
+package com.example.test.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -85,31 +133,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/plugin/external")
+@RequestMapping("/myplugin/v2") // author-chosen base path
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
     @GetMapping("/hello")
-    @Operation(
-            summary = "Say Hello",
-            description = "Returns a greeting from the dynamically loaded plugin",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful response"),
-                    @ApiResponse(responseCode = "500", description = "Internal error")
-            }
-    )
+    @Operation(summary = "Say Hello", description = "Returns a greeting from the dynamically loaded plugin")
     public String sayHello() {
         return "Hello from dynamically loaded plugin!";
     }
 }
-
 ```
-### 3. Implement the `SmartApiPlugin` class
+
+**At runtime** the host will expose the method at:  
+`/api/v1/plugin/external/myplugin/v2/hello`
+
+---
+
+### 3) Implement `SmartApiPlugin`
+
+Implement the plugin entry point and use the provided `PluginRegistrar` to register beans/controllers.
+
+**Important:** do **not** manually `new` the controller if it has dependencies — register the classes as beans so the host Spring context can perform DI.
+
+Example plugin skeleton:
 
 ```java
 package com.example.test;
 
 import com.example.test.controller.HelloWorldController;
+import com.example.test.service.HelloWorldService;
 import com.smartapibox.plugin.PluginMetadata;
 import com.smartapibox.plugin.PluginRegistrar;
 import com.smartapibox.plugin.SmartApiPlugin;
@@ -118,82 +171,119 @@ import java.util.List;
 
 public class HelloWorldPlugin implements SmartApiPlugin {
 
-
     @Override
     public PluginMetadata getMetadata() {
-        return new PluginMetadata("HelloWorldPlugin", "A simple Hello World plugin", "1.0.0", "Stefania", "/api/v1/plugin/external/hello", PluginMetadata.HttpMethod.GET);
+        return new PluginMetadata(
+            "HelloWorldPlugin",
+            "A simple Hello World plugin",
+            "1.0.0",
+            "Stefania",
+            "/api/v1/plugin/external/hello",
+            PluginMetadata.HttpMethod.GET
+        );
     }
 
+    /**
+     * Called by SmartApiBox when loading the plugin.
+     * Use the registrar to register beans or controllers so that the host
+     * can instantiate them and perform dependency injection.
+     *
+     * Typical registrar methods:
+     * - registrar.registerBean(Class<?> beanClass)
+     *      Register a class as a Spring bean in the host context. The host will instantiate it,
+     *      perform constructor injection and make it available for controller registration.
+     *
+     * - registrar.registerController(Object controllerInstance)
+     *      (optional) Register an already created controller instance.
+     *      Prefer registerBean(Class) when your controller/service needs DI.
+     *
+     * (See the PluginRegistrar javadoc in plugin-api-sdk for the exact method signatures.)
+     */
     @Override
-    public void onLoad(PluginRegistrar registrar) {
-        registrar.registerController(new HelloWorldController());
+    public void onLoad(final PluginRegistrar registrar) {
+        // Register service and controller as Spring-managed beans
+        registrar.registerBean(HelloWorldService.class);
+        registrar.registerBean(HelloWorldController.class);
     }
-
 
     @Override
     public List<Class<?>> getRestControllers() {
+        // Used by the host for metadata/OpenAPI extraction and validation
         return List.of(HelloWorldController.class);
     }
 }
 ```
-### 4. Create META-INF/services/com.smartapibox.plugin.SmartApiPlugin
-This file is required for dynamic discovery of your plugin:
-```text
+
+---
+
+### 4) `META-INF/services` discovery
+
+Add `META-INF/services/com.smartapibox.plugin.SmartApiPlugin` containing:
+
+```
 com.example.test.HelloWorldPlugin
 ```
 
-### 5. Local test
-```mvn
+This allows the host `ServiceLoader` to discover your plugin inside the JAR.
+
+---
+
+### 5) Local test & build
+
+- Local compile & test (uses `local-test` profile if present):
+
+```bash
 mvn clean install -Plocal-test
 ```
 
-### 6. Build the plugin
-```mvn
+- Final package:
+
+```bash
 mvn clean package
 ```
 
-### 7. Register & Deploy your plugin via API
+The built JAR will be in `target/hello-world-plugin-<version>.jar`.
 
-To test your plugin in the **sandbox** environment, you must upload it together with the endpoint metadata via the SmartApiBox `/api/private/catalogue/endpoint` API.
+---
 
-This endpoint expects a `multipart/form-data` request with two parts:
+### 6) Register & deploy the plugin to SmartApiBox (sandbox)
 
-- `data` — the JSON payload representing your API endpoint (see `ApiEndpointRequest`)
-- `pluginJar` — your plugin JAR file
+To test in **sandbox** upload the plugin JAR and its endpoint metadata via the SmartApiBox API `/api/private/catalogue/endpoint`. The endpoint expects `multipart/form-data`:
 
-🧾 Example using `curl`:
+- `pluginJar` — the plugin JAR file
+- `data` — the endpoint JSON (see `ApiEndpointRequest`)
+
+Example `curl`:
 
 ```bash
 curl --location 'https://sandboxapi.smartapibox.com/api/private/catalogue/endpoint' \
---header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
---header 'Authorization: Bearer YOUR-SMARTAPIBOX-JWT-TOKEN' \
---form 'pluginJar=@"../HelloWorld-plugin/target/hello-world-plugin-1.0.0.jar"' \
---form 'data="{\"method\":\"GET\",\"path\":\"/api/v1/plugin/external/hello\",\"headers\":[{\"name\":\"x-api-key\",\"value\":\"REQUIRED\",\"description\":null}],\"example\":\"example string\",\"name\":\"name string\",\"requiresAuth\":false,\"consumes\":\"application/json\",\"tags\":[\"NO GPT REQUIRED\"],\"categoryIds\":[6],\"description\":\"descrizione\"}";type=application/json'
+  --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
+  --header 'Authorization: Bearer YOUR-SMARTAPIBOX-JWT-TOKEN' \
+  --form 'pluginJar=@"../HelloWorld-plugin/target/hello-world-plugin-1.0.0.jar"' \
+  --form 'data={...};type=application/json'
 ```
 
-✅ If the metadata matches the plugin, it will be:
-- automatically set to **APPROVED** if you're in the `sandbox` or `develop` environment
-- set to **PENDING_APPROVAL** in `production`, and reviewed manually
+If metadata matches the plugin, the host will copy the JAR to the internal `plugins/` directory and load it dynamically.
 
-Once validated, the plugin is copied into the internal `plugins/` directory and dynamically loaded.
-
-🧪 You can then test your plugin with:
+Test with:
 
 ```bash
-curl --location 'https://sandboxapi.smartapibox.com/api/v1/plugin/external/hello' \
---header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
+curl --location 'https://sandboxapi.smartapibox.com/api/v1/plugin/external/myplugin/v2/hello' \
+  --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 
-### 8. 📤 Publish your plugin
+---
 
-When you're ready to make your plugin available on the **SmartApiBox production environment**, follow these steps:
+### 7) Publishing process
 
-1. **Make sure your plugin is validated** using the sandbox upload endpoint `/api/private/catalogue/endpoint` with `PENDING_APPROVAL` status (this is the default in production).
+- Sandbox → validation and automated approval in `sandbox`.
+- Production → `PENDING_APPROVAL` and manual review by SmartApiBox team before publishing to the public catalogue.
 
-2. A SmartApiBox team member will manually review your submission and, if approved, your plugin will be published on the **official API catalogue**.
+---
 
-3. Once approved, the plugin will be dynamically available to all SmartApiBox users, and you'll be eligible to earn usage-based revenue.
+## Implementation notes for plugin authors
 
-📨 Plugin monetization, documentation, and review features will soon be available in your personal developer dashboard on [smartapibox.com](https://smartapibox.com).
-
-Thanks for contributing to the SmartApiBox ecosystem! 🎉
+- Prefer to register classes (`registrar.registerBean(Class)`), not instances, when you need DI.
+- Do not bundle Spring core libs inside the plugin JAR (they are `provided`).
+- The host will always mount controllers under `/api/v1/plugin/external` — leave the developer path as their "logical" path; the host prepends the global prefix during registration.
+- If you need a plugin-local configuration file, keep it under `src/main/resources` and read via classpath.
