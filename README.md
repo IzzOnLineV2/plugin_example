@@ -120,11 +120,10 @@ Use `mvn clean install -Plocal-test` to compile & test locally without the host.
 
 You may annotate your controller with any paths; the host will mount them under `/api/v1/plugin/external`.
 
-Example:
-
 ```java
 package com.example.test.controller;
 
+import com.example.test.service.HelloWorldService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -133,20 +132,60 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/myplugin/v2") // author-chosen base path
+@RequestMapping("/api/v1/plugin/external")
 @Tag(name = "Hello Plugin", description = "API exposed by HelloWorld plugin")
 public class HelloWorldController {
 
+    private final HelloWorldService helloWorldService;
+
+    public HelloWorldController(final HelloWorldService helloWorldService) {
+        this.helloWorldService = helloWorldService;
+    }
+
     @GetMapping("/hello")
-    @Operation(summary = "Say Hello", description = "Returns a greeting from the dynamically loaded plugin")
+    @Operation(
+        summary = "Say Hello",
+        description = "Returns a greeting from the dynamically loaded plugin",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Successful response"),
+            @ApiResponse(responseCode = "500", description = "Internal error")
+        }
+    )
     public String sayHello() {
-        return "Hello from dynamically loaded plugin!";
+        return helloWorldService.sayHello();
     }
 }
 ```
 
 **At runtime** the host will expose the method at:  
-`/api/v1/plugin/external/myplugin/v2/hello`
+`/api/v1/plugin/external/hello`
+
+### 2b) Create your Service class (optional)
+
+If your controller requires business logic, you can create a service class and inject it using constructor injection. This also shows how to access the `GPTClient` provided by the host:
+
+```java
+package com.example.test.service;
+
+import com.smartapibox.sdk.GPTClient;
+import org.springframework.stereotype.Service;
+
+@Service
+public class HelloWorldService {
+
+    private final GPTClient gptClient;
+
+    public HelloWorldService(final GPTClient gptClient) {
+        this.gptClient = gptClient;
+    }
+
+    public String sayHello() {
+        return gptClient.ask("Say Hello in funny mode");
+    }
+}
+```
+
+The `GPTClient` is available automatically in the host environment and lets you run prompts directly from your plugin.
 
 ---
 
@@ -177,7 +216,7 @@ public class HelloWorldPlugin implements SmartApiPlugin {
             "HelloWorldPlugin",
             "A simple Hello World plugin",
             "1.0.0",
-            "Stefania",
+            "Your Name",
             "/api/v1/plugin/external/hello",
             PluginMetadata.HttpMethod.GET
         );
@@ -248,31 +287,8 @@ The built JAR will be in `target/hello-world-plugin-<version>.jar`.
 
 ### 6) Register & deploy the plugin to SmartApiBox (sandbox)
 
-To test in **sandbox** upload the plugin JAR and its endpoint metadata via the SmartApiBox API `/api/private/catalogue/endpoint`. The endpoint expects `multipart/form-data`:
-
-- `pluginJar` — the plugin JAR file
-- `data` — the endpoint JSON (see `ApiEndpointRequest`)
-
-Example `curl`:
-
-```bash
-curl --location 'https://sandboxapi.smartapibox.com/api/private/catalogue/endpoint' \
-  --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY' \
-  --header 'Authorization: Bearer YOUR-SMARTAPIBOX-JWT-TOKEN' \
-  --form 'pluginJar=@"../HelloWorld-plugin/target/hello-world-plugin-1.0.0.jar"' \
-  --form 'data={...};type=application/json'
-```
-
-If metadata matches the plugin, the host will copy the JAR to the internal `plugins/` directory and load it dynamically.
-
-Test with:
-
-```bash
-curl --location 'https://sandboxapi.smartapibox.com/api/v1/plugin/external/myplugin/v2/hello' \
-  --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
-```
-
----
+Developers can access the **SmartApiBox Sandbox Environment** to upload, register and test their plugins with integrated GPT features.  
+This allows you to verify both the REST logic and GPT prompt responses before publishing your plugin to production.
 
 ### 7) Publishing process
 
