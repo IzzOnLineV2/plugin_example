@@ -142,12 +142,17 @@ This file is required for dynamic discovery of your plugin:
 com.example.test.HelloWorldPlugin
 ```
 
-### 5. Build the plugin
+### 5. Local test
+```mvn
+mvn clean install -Plocal-test
+```
+
+### 6. Build the plugin
 ```mvn
 mvn clean package
 ```
 
-### 6. Register & Deploy your plugin via API
+### 7. Register & Deploy your plugin via API
 
 To test your plugin in the **sandbox** environment, you must upload it together with the endpoint metadata via the SmartApiBox `/api/private/catalogue/endpoint` API.
 
@@ -179,7 +184,7 @@ curl --location 'https://sandboxapi.smartapibox.com/api/v1/plugin/external/hello
 --header 'x-api-key: YOUR-SMARTAPIBOX-API-KEY'
 ```
 
-### 7. 📤 Publish your plugin
+### 8. 📤 Publish your plugin
 
 When you're ready to make your plugin available on the **SmartApiBox production environment**, follow these steps:
 

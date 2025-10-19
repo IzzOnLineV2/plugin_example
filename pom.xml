@@ -25,6 +25,8 @@
             <version>0.0.4</version>
         </dependency>
 
+        <!-- PROVIDED LIBS: slf4j, jakarta, swagger-annotations, lombok -->
+
         <!-- Spring Core (for ApplicationContext) -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -57,7 +59,33 @@
             <scope>provided</scope>
         </dependency>
 
+
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>local-test</id>
+            <dependencies>
+                <!-- Dipendenze solo per testing locale -->
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.2.5</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
